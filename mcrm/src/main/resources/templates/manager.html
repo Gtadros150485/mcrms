@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+        }
+        #sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #343a40;
+            color: white;
+            position: fixed;
+        }
+        #sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            display: block;
+        }
+        #sidebar a:hover {
+            background-color: #495057;
+        }
+        #content {
+            margin-left: 250px;
+            width: 100%;
+            padding: 20px;
+        }
+        .navbar {
+            margin-left: 250px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div id="sidebar">
+    <h2 class="text-center py-4">Manager Panel</h2>
+    <a href="#departmentSection">Department</a>
+    <a href="#employeeSection">Employees</a>
+    <a href="#">Settings</a>
+    <a href="#">Logout</a>
+</div>
+
+<!-- Main Content -->
+<div id="content">
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">Welcome, Manager</span>
+        </div>
+    </nav>
+
+    <!-- Department Section -->
+    <div class="container mt-4" id="departmentSection">
+        <h3>Your Department</h3>
+        <!-- Display Manager's Department -->
+        <p th:text="'You are managing: ' + ${manager.department.name}"></p>
+        <p th:text="'Department ID: ' + ${manager.department.id}"></p>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editDepartmentModal">Edit Department</button>
+    </div>
+
+    <!-- Employees Section -->
+    <div class="container mt-4" id="employeeSection">
+        <h3>Employees in Your Department</h3>
+        <!-- Display Employees List -->
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="employee : ${manager.department.employees}">
+                <td th:text="${employee.name}"></td>
+                <td th:text="${employee.role}"></td>
+                <td>
+                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editEmployeeModal"
+                            th:attr="data-employee-id=${employee.id}" th:attr="data-employee-name=${employee.name}">Edit</button>
+                    <button class="btn btn-danger" th:attr="data-employee-id=${employee.id}" th:attr="data-employee-name=${employee.name}"
+                            data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal">Delete</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">Add Employee</button>
+    </div>
+
+</div>
+
+<!-- Edit Department Modal -->
+<div class="modal fade" id="editDepartmentModal" tabindex="-1" aria-labelledby="editDepartmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editDepartmentModalLabel">Edit Department</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/manager/updateDepartment}" method="POST">
+                    <div class="mb-3">
+                        <label for="departmentName" class="form-label">Department Name</label>
+                        <input type="text" class="form-control" id="departmentName" name="name" th:value="${manager.department.name}" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Update Department</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Employee Modal -->
+<div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addEmployeeModalLabel">Add Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/manager/addEmployee}" method="POST">
+                    <div class="mb-3">
+                        <label for="employeeName" class="form-label">Employee Name</label>
+                        <input type="text" class="form-control" id="employeeName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="employeeRole" class="form-label">Employee Role</label>
+                        <input type="text" class="form-control" id="employeeRole" name="role" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Add Employee</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Employee Modal -->
+<div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editEmployeeModalLabel">Edit Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/manager/editEmployee}" method="POST">
+                    <div class="mb-3">
+                        <label for="employeeName" class="form-label">Employee Name</label>
+                        <input type="text" class="form-control" id="employeeName" name="name" th:value="${employee.name}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="employeeRole" class="form-label">Employee Role</label>
+                        <input type="text" class="form-control" id="employeeRole" name="role" th:value="${employee.role}" required>
+                    </div>
+                    <input type="hidden" id="employeeId" name="id" th:value="${employee.id}">
+                    <button type="submit" class="btn btn-success w-100">Update Employee</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Employee Modal -->
+<div class="modal fade" id="deleteEmployeeModal" tabindex="-1" aria-labelledby="deleteEmployeeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteEmployeeModalLabel">Delete Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this employee?</p>
+                <form th:action="@{/manager/deleteEmployee}" method="POST">
+                    <input type="hidden" id="employeeIdToDelete" name="id" th:value="${employee.id}">
+                    <button type="submit" class="btn btn-danger w-100">Delete Employee</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS (Including Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

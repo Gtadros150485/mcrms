@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+        }
+        #sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #343a40;
+            color: white;
+            position: fixed;
+        }
+        #sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            display: block;
+        }
+        #sidebar a:hover {
+            background-color: #495057;
+        }
+        #content {
+            margin-left: 250px;
+            width: 100%;
+            padding: 20px;
+        }
+        .navbar {
+            margin-left: 250px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div id="sidebar">
+    <h2 class="text-center py-4">Employee Panel</h2>
+    <a href="#departmentSection">My Department</a>
+    <a href="#rolesSection">Roles</a>
+    <a href="#">Settings</a>
+    <a href="#">Logout</a>
+</div>
+
+<!-- Main Content -->
+<div id="content">
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">Welcome, Employee</span>
+        </div>
+    </nav>
+
+    <!-- Department Section -->
+    <div class="container mt-4" id="departmentSection">
+        <h3>My Department</h3>
+        <!-- Display Employee's Department -->
+        <p th:text="'You are working in: ' + ${employee.department.name}"></p>
+        <p th:text="'Department ID: ' + ${employee.department.id}"></p>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#changeDepartmentModal">Change Department</button>
+    </div>
+
+    <!-- Roles Section -->
+    <div class="container mt-4" id="rolesSection">
+        <h3>Your Roles</h3>
+        <!-- Display Employee's Roles -->
+        <ul class="list-group">
+            <li class="list-group-item" th:each="role : ${employee.roles}">
+                <span th:text="${role.name}"></span>
+            </li>
+        </ul>
+        <button class="btn btn-warning mt-3" data-bs-toggle="modal" data-bs-target="#assignRoleModal">Assign Role</button>
+    </div>
+
+</div>
+
+<!-- Change Department Modal -->
+<div class="modal fade" id="changeDepartmentModal" tabindex="-1" aria-labelledby="changeDepartmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changeDepartmentModalLabel">Change Department</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/employee/changeDepartment}" method="POST">
+                    <div class="mb-3">
+                        <label for="departmentSelect" class="form-label">Select New Department</label>
+                        <select class="form-select" id="departmentSelect" name="departmentId" required>
+                            <option th:each="department : ${departments}"
+                                    th:value="${department.id}"
+                                    th:text="${department.name}"></option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Change Department</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assign Role Modal -->
+<div class="modal fade" id="assignRoleModal" tabindex="-1" aria-labelledby="assignRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignRoleModalLabel">Assign Role</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/employee/assignRole}" method="POST">
+                    <div class="mb-3">
+                        <label for="roleSelect" class="form-label">Select Role</label>
+                        <select class="form-select" id="roleSelect" name="roleId" required>
+                            <option th:each="role : ${availableRoles}"
+                                    th:value="${role.id}"
+                                    th:text="${role.name}"></option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100">Assign Role</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS (Including Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

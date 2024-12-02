@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+        }
+        #sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #343a40;
+            color: white;
+            position: fixed;
+        }
+        #sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            display: block;
+        }
+        #sidebar a:hover {
+            background-color: #495057;
+        }
+        #content {
+            margin-left: 250px;
+            width: 100%;
+            padding: 20px;
+        }
+        .navbar {
+            margin-left: 250px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div id="sidebar">
+    <h2 class="text-center py-4">Admin Panel</h2>
+    <a href="#departmentsSection">Departments</a>
+    <a href="/admin/users" id="usersLink">Users</a>
+    <a href="#">Settings</a>
+    <a href="#">Logout</a>
+</div>
+
+<!-- Main Content -->
+<div id="content">
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">Welcome, Admin</span>
+        </div>
+    </nav>
+
+    <!-- Departments Section -->
+    <div class="container mt-4" id="departmentsSection">
+        <h3>Manage Departments</h3>
+        <!-- Add Department Button -->
+        <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">Add Department</button>
+        <!-- Departments Table -->
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="department : ${departments}">
+                <th th:text="${department.id}"></th>
+                <td th:text="${department.name}"></td>
+                <td>
+                    <!-- Edit Department Button -->
+                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editDepartmentModal" th:data-id="${department.id}" th:data-name="${department.name}">Edit</button>
+                    <!-- Delete Department Button -->
+                    <button class="btn btn-danger" th:data-id="${department.id}" th:onclick="'deleteDepartment(' + ${department.id} + ')'" >Delete</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Users Section -->
+    <div class="container mt-4" id="usersSection">
+        <h3>Manage Users</h3>
+        <!-- Add User Button -->
+        <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">Add User</button>
+        <!-- Users Table -->
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Username</th>
+                <th>Department</th>
+                <th>Role</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${users}">
+                <th th:text="${user.id}"></th>
+                <td th:text="${user.username}"></td>
+                <td th:text="${user.role}"></td>
+                <td>
+                    <!-- Edit User Button -->
+                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editUserModal" th:data-id="${user.id}" th:data-username="${user.username}" th:data-email="${user.email}" th:data-role="${user.role}">Edit</button>
+                    <!-- Delete User Button -->
+                    <button class="btn btn-danger" th:data-id="${user.id}" th:onclick="'deleteUser(' + ${user.id} + ')'" >Delete</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- Add Department Modal -->
+<div class="modal fade" id="addDepartmentModal" tabindex="-1" aria-labelledby="addDepartmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addDepartmentModalLabel">Add Department</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/departments}" method="POST">
+                    <div class="mb-3">
+                        <label for="departmentName" class="form-label">Department Name</label>
+                        <input type="text" class="form-control" id="departmentName" name="name" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Add Department</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Department Modal -->
+<div class="modal fade" id="editDepartmentModal" tabindex="-1" aria-labelledby="editDepartmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editDepartmentModalLabel">Edit Department</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/departments/update}" method="POST">
+                    <input type="hidden" id="editDepartmentId" name="id">
+                    <div class="mb-3">
+                        <label for="editDepartmentName" class="form-label">Department Name</label>
+                        <input type="text" class="form-control" id="editDepartmentName" name="name" required>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100">Update Department</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUserModalLabel">Add User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/users}" method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Role</label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="ADMIN">Admin</option>
+                            <option value="USER">User</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Add User</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/users/update}" method="POST">
+                    <input type="hidden" id="editUserId" name="id">
+                    <div class="mb-3">
+                        <label for="editUsername" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="editUsername" name="username" required>
+
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="editEmail" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editRole" class="form-label">Role</label>
+                        <select class="form-select" id="editRole" name="role" required>
+                            <option value="ADMIN">Admin</option>
+                            <option value="USER">User</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100">Update User</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<script>
+    // Function to get a cookie value by name
+    function getCookie(name) {
+        let value = "; " + document.cookie;
+        let parts = value.split("; " + name + "=");
+        if (parts.length == 2) return parts.pop().split(";").shift();
+        return null;
+    }
+
+    // Function to fetch users and update the table
+    function fetchUsers() {
+        const token = getCookie("jwtToken");  // Get JWT token from cookies
+
+        if (token) {
+            fetch('/admin/users', {  // Use the correct endpoint
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,  // Add token to Authorization header
+                    'Content-Type': 'application/json',  // Optional, depending on your API
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Users data:', data);  // Process the response (show users, etc.)
+
+                    const usersTableBody = document.querySelector("#usersSection tbody");
+                    usersTableBody.innerHTML = "";  // Clear existing rows
+
+                    data.forEach(user => {
+                        const row = document.createElement("tr");
+
+                        row.innerHTML = `
+                        <th>${user.id}</th>
+                        <td>${user.username}</td>
+                        <td>${user.role}</td>
+                        <td>
+                            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editUserModal" data-id="${user.id}" data-username="${user.username}" data-role="${user.role}">Edit</button>
+                            <button class="btn btn-danger" data-id="${user.id}" onclick="deleteUser(${user.id})">Delete</button>
+                        </td>
+                    `;
+
+                        usersTableBody.appendChild(row);  // Add the new row to the table body
+                    });
+                })
+                .catch(error => {
+                    console.log('Error:', error);  // Handle errors
+                });
+        } else {
+            console.log("No token found in cookies");
+        }
+    }
+
+    // Fetch users when the page is loaded
+    document.addEventListener("DOMContentLoaded", fetchUsers);
+</script>
+
+
+<!--<script>-->
+<!--    // Function to get a cookie value by name-->
+<!--    function getCookie(name) {-->
+<!--        let value = "; " + document.cookie;-->
+<!--        let parts = value.split("; " + name + "=");-->
+<!--        if (parts.length == 2) return parts.pop().split(";").shift();-->
+<!--        return null;-->
+<!--    }-->
+
+<!--    // Function to handle the link click and fetch data-->
+<!--    document.getElementById('usersLink').addEventListener('click', function(event) {-->
+<!--        event.preventDefault();  // Prevent the default link behavior (navigation)-->
+
+<!--        const token = getCookie("jwtToken");  // Get JWT token from cookies-->
+
+<!--        if (token) {-->
+<!--            // Using fetch with the Bearer token-->
+<!--            fetch('/admin/users', {  // Use the correct endpoint-->
+<!--                method: 'GET',-->
+<!--                headers: {-->
+<!--                    'Authorization': 'Bearer ' + token,  // Add token to Authorization header-->
+<!--                    'Content-Type': 'application/json',  // Optional, depending on your API-->
+<!--                }-->
+<!--            })-->
+<!--                .then(response => {-->
+<!--                    if (response.ok) {-->
+<!--                        return response.json();  // Parse the JSON response-->
+<!--                    } else {-->
+<!--                        throw new Error('Failed to fetch data');-->
+<!--                    }-->
+<!--                })-->
+<!--                .then(data => {-->
+<!--                    console.log('Users data:', data);  // Process the response (show users, etc.)-->
+<!--                    // If you want to redirect to a page after fetching, use:-->
+<!--                    // window.location.href = '/admin/users';-->
+<!--                })-->
+<!--                .catch(error => {-->
+<!--                    console.log('Error:', error);  // Handle errors-->
+<!--                });-->
+<!--        } else {-->
+<!--            console.log("No token found in cookies");-->
+<!--        }-->
+<!--    });-->
+<!--</script>-->
+
+</body>
+</html>
